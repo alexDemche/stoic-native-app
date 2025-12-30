@@ -1,50 +1,53 @@
-# Welcome to your Expo app 👋
+# 🏛️ Stoic Lab — Breath & Sleep Companion
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Stoic Lab** — це мобільний додаток на React Native, створений для синхронізації розуму та тіла за допомогою технік стоїцизму, квадратного дихання та когнітивного перемішування.
 
-## Get started
 
-1. Install dependencies
 
-   ```bash
-   npm install
-   ```
+## ✨ Основні функції
 
-2. Start the app
+### 🧘 Breath Flow (Дихання)
+* **Техніка 4-4-4-4**: Квадратне дихання для миттєвого заспокоєння та фокусу.
+* **Стоїчні афірмації**: Динамічні тексти (Любов, Успіх, Спокій), що змінюються під час циклу.
+* **Тактильний відгук**: Використання Haptic Feedback для відчуття кожної фази дихання.
+* **Візуальний супровід**: Плавна зміна WebP-зображень високої якості відповідно до обраного "потоку".
 
-   ```bash
-   npx expo start
-   ```
+### 🌙 Sleep Shuffler (Сон)
+* **Cognitive Shuffling**: Науково доведений метод засинання через візуалізацію випадкових об'єктів.
+* **Українська озвучка**: Автоматичне читання слів за допомогою TTS (Text-to-Speech) з налаштованим спокійним тембром.
+* **Аудіо-атмосфера**: Фоновий звук дощу з плавним наростанням (Fade-in) та незалежним керуванням гучністю.
 
-In the output, you'll find options to open the app in a
+### 🎨 Дизайн та UX
+* **Minimalist UI**: Естетика Telegram Web App (TWA) з акцентом на типографіку та простір.
+* **Native Animations**: Використання нативного драйвера анімацій для максимально плавного досвіду без сторонніх бібліотек.
+* **Stoic Rituals**: Пульсуючі лоадери та екрани підготовки для створення ритуалу входу в практику.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🛠 Технологічний стек
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+* **Framework**: [React Native](https://reactnative.dev/) (Expo SDK)
+* **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing)
+* **Language**: [TypeScript](https://www.typescriptlang.org/)
+* **Audio**: `expo-av`
+* **Speech**: `expo-speech`
+* **Haptics**: `expo-haptics`
 
-## Get a fresh project
+## 📂 Структура проекту
 
-When you're ready, run:
+```text
+├── app/                  # Маршрути та екрани (Expo Router)
+├── components/           # Загальні UI компоненти (кнопки, картки, лоадери)
+├── constants/            # Константи, теми, списки афірмацій та слів
+├── features/             # Основні модулі (breath, sleep)
+│   ├── breath/           # Логіка та екрани дихальних практик
+│   └── sleep/            # Когнітивне перемішування та аудіо сну
+└── assets/               # Зображення (WebP), звуки (MP3) та шрифти
 
-```bash
-npm run reset-project
-```
+🚀 Як запустити локально
+1. Клонуйте репозиторій:
+git clone [https://github.com/alexDemche/stoic-native-app.git](https://github.com/alexDemche/stoic-native-app.git)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Встановіть залежності:
+npm install
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+3. Запустіть проект:
+npx expo start
