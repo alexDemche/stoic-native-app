@@ -1,9 +1,9 @@
 import { Colors, SPACING, STOIC_STYLE } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-// UI Components
+// UI & Wrappers
 import { StoicFlowContainer } from '@/components/containers/StoicFlowContainer';
 import { FadeViewWrapper } from '@/components/ui/FadeViewWrapper';
 import { PracticeCard } from '@/components/ui/PracticeCard';
@@ -11,25 +11,83 @@ import { PracticeCard } from '@/components/ui/PracticeCard';
 // Features
 import { BreathFlow } from '@/features/breath/BreathFlow';
 import { FlowSelectionScreen } from '@/features/breath/FlowSelectionScreen';
+import { BodyRelaxFlow } from '@/features/relax/BodyRelaxFlow';
 import { SleepScreen } from '@/features/sleep/SleepScreen';
 
+// Типи станів для кращого контролю
+type LabView = 
+  | 'selection' 
+  | 'breath_config' | 'breath_loading' | 'breath_active'
+  | 'sleep_loading' | 'sleep_active'
+  | 'relax_loading' | 'relax_active';
+
 export default function LabScreen() {
-  const [view, setView] = useState<'selection' | 'breath_config' | 'breath_loading' | 'breath_active' | 'sleep_loading' | 'sleep_active'>('selection');
+  const [view, setView] = useState<LabView>('selection');
   const [selectedFlow, setSelectedFlow] = useState<any>(null);
 
-  // Функція для повернення назад
- const handleBack = () => {
-    if (view === 'breath_config' || view === 'sleep_loading') {
-      setView('selection');
-    } else if (view === 'breath_loading') {
-      setView('breath_config');
-    }
+  // 1. МАПА НАВІГАЦІЇ (куди повертатись натискаючи "Назад")
+  const BACK_MAP: Partial<Record<LabView, LabView>> = {
+    'breath_config': 'selection',
+    'breath_loading': 'breath_config',
+    'sleep_loading': 'selection',
+    'relax_loading': 'selection',
   };
+
+  const handleBack = () => {
+    const prevView = BACK_MAP[view];
+    if (prevView) setView(prevView);
+  };
+
+  // 2. ЦЕНТРАЛЬНИЙ РЕНДЕРЕР (Оптимізація замість &&)
+  const renderContent = useMemo(() => {
+    switch (view) {
+      case 'selection':
+        return (
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <Text style={styles.title}>Stoic Lab</Text>
+              <Text style={styles.subtitle}>ОБЕРИ СВІЙ ШЛЯХ</Text>
+            </View>
+            <View style={styles.grid}>
+              <PracticeCard title="Дихання" subtitle="Square Breathing" icon="🫁" onPress={() => setView('breath_config')} />
+              <PracticeCard title="Сон" subtitle="Cognitive Shuffle" icon="🌙" onPress={() => setView('sleep_loading')} />
+              <PracticeCard title="Тіло" subtitle="Relaxation" icon="🧘" onPress={() => setView('relax_loading')} />
+            </View>
+            <Text style={styles.footerText}>СИНХРОНІЗАЦІЯ З РОЗУМОМ</Text>
+          </View>
+        );
+
+      // ГРУПА: ДИХАННЯ
+      case 'breath_config':
+        return <FlowSelectionScreen onSelect={(f, d) => { setSelectedFlow({...f, duration: d}); setView('breath_loading'); }} />;
+      case 'breath_loading':
+        return <StoicFlowContainer onFlowStart={() => setView('breath_active')} />;
+      case 'breath_active':
+        return <BreathFlow mood={selectedFlow} onBack={() => setView('breath_config')} />;
+
+      // ГРУПА: СОН
+      case 'sleep_loading':
+        return <StoicFlowContainer onFlowStart={() => setView('sleep_active')} />;
+      case 'sleep_active':
+        return <SleepScreen onBack={() => setView('selection')} />;
+
+      // ГРУПА: ТІЛО (РЕЛАКСАЦІЯ)
+      case 'relax_loading':
+        return <StoicFlowContainer onFlowStart={() => setView('relax_active')} />;
+      case 'relax_active':
+        return <BodyRelaxFlow onBack={() => setView('selection')} />;
+
+      default:
+        return null;
+    }
+  }, [view, selectedFlow]);
+
+  // 3. ПЕРЕВІРКА: чи показувати кнопку "Назад"
+  const showBackButton = !!BACK_MAP[view];
 
   return (
     <View style={styles.mainLayout}>
-      {/* Кнопка НАЗАД */}
-      {(view !== 'selection' && view !== 'breath_active' && view !== 'sleep_active') && (
+      {showBackButton && (
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Ionicons name="arrow-back" size={24} color={Colors.dark.textSecondary} />
           <Text style={styles.backText}>НАЗАД</Text>
@@ -37,56 +95,7 @@ export default function LabScreen() {
       )}
 
       <FadeViewWrapper key={view}>
-        {/* 1. ВИБІР ПРАКТИКИ */}
-        {view === 'selection' && (
-          <View style={styles.container}>
-            <View style={styles.header}>
-              <Text style={styles.title}>Stoic Lab</Text>
-              <Text style={styles.subtitle}>ОБЕРИ СВІЙ ШЛЯХ</Text>
-            </View>
-
-            <View style={styles.grid}>
-              <PracticeCard 
-                title="Дихання" 
-                subtitle="Focus & Calm" 
-                icon="🫁" 
-                onPress={() => setView('breath_config')} 
-              />
-              <PracticeCard 
-                title="Сон" 
-                subtitle="Deep Rest" 
-                icon="🌙" 
-                onPress={() => setView('sleep_loading')} // ТЕПЕР ВЕДЕ НА ЗАВАНТАЖЕННЯ
-              />
-            </View>
-          </View>
-        )}
-
-        {/* 2. ЗАВАНТАЖЕННЯ ДЛЯ СНУ (новий блок) */}
-        {view === 'sleep_loading' && (
-          <StoicFlowContainer onFlowStart={() => setView('sleep_active')} />
-        )}
-
-        {/* 3. АКТИВНИЙ ЕКРАН СНУ */}
-        {view === 'sleep_active' && (
-          <SleepScreen onBack={() => setView('selection')} />
-        )}
-
-        {/* РЕШТА БЛОКІВ ДЛЯ ДИХАННЯ... */}
-        {view === 'breath_config' && (
-          <FlowSelectionScreen onSelect={(flow, duration) => {
-            setSelectedFlow({ ...flow, duration });
-            setView('breath_loading');
-          }} />
-        )}
-
-        {view === 'breath_loading' && (
-          <StoicFlowContainer onFlowStart={() => setView('breath_active')} />
-        )}
-
-        {view === 'breath_active' && (
-          <BreathFlow mood={selectedFlow} onBack={() => setView('breath_config')} />
-        )}
+        {renderContent}
       </FadeViewWrapper>
     </View>
   );
